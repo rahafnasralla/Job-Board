@@ -2,8 +2,9 @@ const express = require('express')
 const router = express.Router()
 const db = require('../connection')
 
+
 //get all jobs
-router.get('/jobs', (req,res,next)=> {
+router.get('/jobs',(req,res,next)=> {
     db.query('SELECT * FROM jobListings',(err,results,fields)=> {
         if(!err) {
              res.json(results)
@@ -72,8 +73,8 @@ router.get("/job/:id", (req, res, next) => {
 
 //add new job
 router.post("/addjob", (req, res, next) => {
-  let data = [req.body.id,req.body.title,req.body.description,req.body.requirements,req.body.salary]
-  let sql = `INSERT INTO jobListings (id,title,description,requirements,salary) VALUES(?,?,?,?,?)`;
+  let data = [req.body.title,req.body.description,req.body.requirements,req.body.salary,req.body.company,req.body.location]
+  let sql = `INSERT INTO jobListings (title,description,requirements,salary,company,locatin) VALUES(?,?,?,?,?,?,?)`;
   db.query(sql,data,(err,results,fields)=>{
     !err ? res.json(results) : res.json(err)
   })
