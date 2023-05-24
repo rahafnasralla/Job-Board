@@ -6,6 +6,8 @@ const dotenv = require('dotenv')
 dotenv.config({path : './.env'})
 const jwt = require('jsonwebtoken');
 const secretKey = process.env.SECRETKEY;
+const bcrypt = require('bcrypt');
+
 
 
 
@@ -23,16 +25,27 @@ app.use('/api',authenticateToken,require('./routes/api'))
 app.use('/api/applications',authenticateToken, require('./routes/application'))
 
 
+
 // Sign up route
 app.post('/signup', (req, res) => {
-  const data = [req.body.username,req.body.password,req.body.phone,req.body.email]
+  const { username, password, phone, email } = req.body;
 
-  db.query('INSERT INTO applicants (username, password,phone,email) VALUES (?,?,?,?)',data, (error, results) => {
+  // Hash the password
+  bcrypt.hash(password, 10, (error, hashedPassword) => {
     if (error) {
-      console.error('Error occurred during sign up:', error);
+      console.error('Error occurred during password hashing:', error);
       res.status(500).json({ message: 'Sign up failed.' });
     } else {
-      res.status(200).json({ message: 'Sign up successful.' });
+      const data = [username, hashedPassword, phone, email];
+
+      db.query('INSERT INTO applicants (username, password, phone, email) VALUES (?,?,?,?)', data, (error, results) => {
+        if (error) {
+          console.error('Error occurred during sign up:', error);
+          res.status(500).json({ message: 'Sign up failed.' });
+        } else {
+          res.status(200).json({ message: 'Sign up successful.' });
+        }
+      });
     }
   });
 });
@@ -41,7 +54,7 @@ app.post('/signup', (req, res) => {
 app.post('/signin', (req, res) => {
   const { username, password } = req.body;
 
-  db.query('SELECT * FROM applicants WHERE username = ? AND password = ?', [username, password], (error, results) => {
+  db.query('SELECT * FROM applicants WHERE username = ?', [username], (error, results) => {
     if (error) {
       console.error('Error occurred during sign in:', error);
       res.status(500).json({ message: 'Sign in failed.' });
@@ -50,12 +63,23 @@ app.post('/signin', (req, res) => {
     } else {
       const user = results[0];
 
-      const token = jwt.sign({ id: user.id, username: user.username }, secretKey, { expiresIn: '1h' });
+      // Compare the provided password with the hashed password
+      bcrypt.compare(password, user.password, (error, isMatch) => {
+        if (error) {
+          console.error('Error occurred during password comparison:', error);
+          res.status(500).json({ message: 'Sign in failed.' });
+        } else if (!isMatch) {
+          res.status(401).json({ message: 'Invalid credentials.' });
+        } else {
+          const token = jwt.sign({ id: user.id, username: user.username }, secretKey, { expiresIn: '1h' });
 
-      res.status(200).json({ message: 'Sign in successful.', token });
+          res.status(200).json({ message: 'Sign in successful.', token });
+        }
+      });
     }
   });
 });
+
 
 
 

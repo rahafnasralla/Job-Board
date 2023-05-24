@@ -74,7 +74,7 @@ router.get("/job/:id", (req, res, next) => {
 //add new job
 router.post("/addjob", (req, res, next) => {
   let data = [req.body.title,req.body.description,req.body.requirements,req.body.salary,req.body.company,req.body.location]
-  let sql = `INSERT INTO jobListings (title,description,requirements,salary,company,locatin) VALUES(?,?,?,?,?,?,?)`;
+  let sql = `INSERT INTO jobListings (title,description,requirements,salary,company,location) VALUES(?,?,?,?,?,?)`;
   db.query(sql,data,(err,results,fields)=>{
     !err ? res.json(results) : res.json(err)
   })
