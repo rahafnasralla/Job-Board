@@ -28,7 +28,7 @@ app.use('/application',authenticateToken, require('./routes/application'))
 
 // Sign up route
 app.post('/signup', (req, res) => {
-  const { username, password, phone, email } = req.body;
+  const { username, password, phone, email, role } = req.body;
 
   // Hash the password
   bcrypt.hash(password, 10, (error, hashedPassword) => {
@@ -36,9 +36,9 @@ app.post('/signup', (req, res) => {
       console.error('Error occurred during password hashing:', error);
       res.status(500).json({ message: 'Sign up failed.' });
     } else {
-      const data = [username, hashedPassword, phone, email];
+      const data = [username, hashedPassword, phone, email, role];
 
-      db.query('INSERT INTO applicants (username, password, phone, email) VALUES (?,?,?,?)', data, (error, results) => {
+      db.query('INSERT INTO applicants (username, password, phone, email, role) VALUES (?,?,?,?,?)', data, (error, results) => {
         if (error) {
           console.error('Error occurred during sign up:', error);
           res.status(500).json({ message: 'Sign up failed.' });
@@ -49,6 +49,7 @@ app.post('/signup', (req, res) => {
     }
   });
 });
+
 
 // Sign in route
 app.post('/signin', (req, res) => {
@@ -71,7 +72,7 @@ app.post('/signin', (req, res) => {
         } else if (!isMatch) {
           res.status(401).json({ message: 'Invalid credentials.' });
         } else {
-          const token = jwt.sign({ id: user.id, username: user.username }, secretKey, { expiresIn: '1h' });
+          const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, secretKey, { expiresIn: '1h' });
 
           res.status(200).json({ message: 'Sign in successful.', token });
         }
@@ -79,11 +80,6 @@ app.post('/signin', (req, res) => {
     }
   });
 });
-
-
-
-
-
 
 
 function authenticateToken(req, res, next) {
@@ -104,8 +100,6 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
-
-
 
 
 app.listen("3000", () => {

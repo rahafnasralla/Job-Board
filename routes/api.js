@@ -74,6 +74,9 @@ router.get("/job/:id", (req, res, next) => {
 
 //add new job
 router.post("/addjob", (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Access denied.' });
+  }
   let data = [req.body.title,req.body.description,req.body.requirements,req.body.salary,req.body.company,req.body.location]
   let sql = `INSERT INTO jobListings (title,description,requirements,salary,company,location) VALUES(?,?,?,?,?,?)`;
   db.query(sql,data,(err,results,fields)=>{
@@ -83,6 +86,9 @@ router.post("/addjob", (req, res, next) => {
 
 //update job
 router.put("/updatejob/:id", (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Access denied.' });
+  }
   let data=[req.body.description,req.body.requirements,req.body.salary];
   let sql = `UPDATE jobListings SET description= ?, requirements =? , salary=? WHERE id=${req.params.id}`;
   db.query(sql,data, (err, result,fields) => {
@@ -92,6 +98,9 @@ router.put("/updatejob/:id", (req, res) => {
 
 //delete job
 router.delete("/deletejob/:id", (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Access denied.' });
+  }
   let sql = `DELETE FROM jobListings WHERE id=${req.params.id}`;
   db.query(sql, (err, result) => {
     !err ? res.json(result) : res.json(err)
