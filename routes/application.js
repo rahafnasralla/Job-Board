@@ -30,6 +30,9 @@ application.get('/', (req,res,next)=> {
 })
 
 application.get("/job/:id", (req, res, next) => {
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied.' });
+      }
     let sql = `SELECT * FROM applications WHERE jobID= ${req.params.id}`;
     if(req.params.id!==undefined)  {
     db.query(sql, (err, result) => {
