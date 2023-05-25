@@ -22,7 +22,7 @@ db.connect((err) => {
 app.use(bodyParser.json());
 
 app.use('/api',authenticateToken,require('./routes/api'))
-app.use('/api/applications',authenticateToken, require('./routes/application'))
+app.use('/application',authenticateToken, require('./routes/application'))
 
 
 

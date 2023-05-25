@@ -13,6 +13,7 @@ router.get('/jobs',(req,res,next)=> {
     }) 
 })
 //get one job
+
 router.get("/job/:id", (req, res, next) => {
     let sql = `SELECT * FROM jobListings WHERE id= ${req.params.id}`;
     if(req.params.id!==undefined)  {
