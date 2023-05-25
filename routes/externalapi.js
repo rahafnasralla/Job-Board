@@ -5,10 +5,8 @@ const companies = express.Router()
 
 
 companies.get('/companies', async (req, res) => {
-    const endpoint = 'https://api.thecompaniesapi.com/v1/companies';
-    const token = 'guNBlQqB';
-    const url = ${ endpoint }?token = ${ token };
 
+    const url = "https://api.thecompaniesapi.com/v1/companies?token=guNBlQqB";
     try {
         const response = await axios.get(url);
         const companiesData = response.data;
